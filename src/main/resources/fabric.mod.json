@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "scriptables",
+	"version": "${version}",
+	"name": "Scriptables",
+	"description": "A mod about scriptable stuff (NPCs, Blocks, Items) akin to CustomNPCs",
+	"authors": [
+		"TechTastic"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT License",
+	"icon": "assets/scriptables/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			{
+				"value": "io.github.techtastic.scriptables.Scriptables",
+				"adapter": "kotlin"
+			}
+		],
+		"client": [
+			{
+				"value": "io.github.techtastic.scriptables.Scriptables${'$'}Client",
+				"adapter": "kotlin"
+			}
+		]
+	},
+	"mixins": [
+		"scriptables.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.11",
+		"minecraft": "~1.21-",
+		"java": ">=21",
+		"fabric-api": "*",
+		"fabric-language-kotlin": "*"
+	}
+}
