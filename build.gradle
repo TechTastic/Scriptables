@@ -18,6 +18,7 @@ repositories {
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
 	mavenCentral()
+	maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -30,8 +31,9 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
 
-	// LuaJ
-	modImplementation 'org.luaj:luaj-jse:3.0.1'
+	// Figura LuaJ
+	implementation("com.github.FiguraMC.luaj:luaj-core:3.0.8-figura")
+	implementation("com.github.FiguraMC.luaj:luaj-jse:3.0.8-figura")
 }
 
 processResources {
