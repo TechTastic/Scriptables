@@ -1,7 +1,6 @@
 package io.github.techtastic.scriptables.block.entity
 
 import io.github.techtastic.scriptables.api.scriptable.IScriptable
-import io.github.techtastic.scriptables.api.LuaEventHandler
 import io.github.techtastic.scriptables.block.ScriptableBlockEntities.SCRIPTABLE_BLOCK_ENTITY_TYPE
 import net.minecraft.core.BlockPos
 import net.minecraft.core.HolderLookup

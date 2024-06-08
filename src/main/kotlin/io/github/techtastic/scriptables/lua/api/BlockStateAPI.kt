@@ -1,7 +1,8 @@
 package io.github.techtastic.scriptables.lua.api
 
-class BlockStateAPI {
-    init {
+import io.github.techtastic.scriptables.api.lua.ILuaAPI
+import net.minecraft.world.level.block.state.BlockState
 
-    }
+class BlockStateAPI(state: BlockState): ILuaAPI {
+    override fun getName() = "block"
 }

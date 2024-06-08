@@ -1,10 +1,10 @@
 package io.github.techtastic.scriptables.api.scriptable
 
-import io.github.techtastic.scriptables.api.LuaEventHandler
+import io.github.techtastic.scriptables.api.lua.LuaSandbox
 
 interface IScriptable {
-    fun getCode(): String
-    fun setCode(code: String)
+    fun getScript(): String
+    fun setScript(script: String)
 
-    fun getOrCreateEventHandler(): LuaEventHandler
+    fun getOrCreateSandbox(): LuaSandbox
 }

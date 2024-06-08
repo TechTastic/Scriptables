@@ -1,4 +1,4 @@
-package io.github.techtastic.scriptables.lua
+package io.github.techtastic.scriptables.api.lua
 
 import io.github.techtastic.scriptables.lua.lb.TestLib
 import org.luaj.vm2.*
@@ -51,7 +51,7 @@ class LuaSandbox {
                 arrayOf<LuaValue>(
                     LuaValue.ADD, object : TwoArgFunction() {
                         override fun call(x: LuaValue, y: LuaValue): LuaValue? {
-                            return LuaValue.valueOf(
+                            return valueOf(
                                 (if (x === TRUE) 1.0 else x.todouble()) +
                                         if (y === TRUE) 1.0 else y.todouble()
                             )
