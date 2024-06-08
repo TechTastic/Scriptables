@@ -5,38 +5,25 @@ import org.luaj.vm2.LuaValue
 
 object LuaValueUtils {
     fun parse(o: Any?): LuaValue {
-        return if (o is Int)
-            LuaValue.valueOf(o)
-        else if (o is Double)
-            LuaValue.valueOf(o)
-        else if (o is Float)
-            LuaValue.valueOf(o.toDouble())
-        else if (o is Boolean)
-            LuaValue.valueOf(o)
-        else if (o is String)
-            LuaValue.valueOf(o)
-        else if (o is ByteArray)
-            LuaValue.valueOf(o)
-        else if (o is Char)
-            LuaValue.valueOf(o.toString())
-        else if (o is Collection<*>)
-            parseAsTable(o)
-        else if (o is Array<*>)
-            parseAsTable(o.toList())
-        else if (o is IntArray)
-            parseAsTable(o.toList())
-        else if (o is DoubleArray)
-            parseAsTable(o.toList())
-        else if (o is FloatArray)
-            parseAsTable(o.toList())
-        else if (o is BooleanArray)
-            parseAsTable(o.toList())
-        else if (o is CharArray)
-            parseAsTable(o.toList())
-        else if (o is Map<*, *>)
-            parseAsTable(o)
-        else
-            ScriptablesAPI.convertToAPI(o)
+        return when (o) {
+            is LuaValue -> o
+            is Int -> LuaValue.valueOf(o)
+            is Double -> LuaValue.valueOf(o)
+            is Float -> LuaValue.valueOf(o.toDouble())
+            is Boolean -> LuaValue.valueOf(o)
+            is String -> LuaValue.valueOf(o)
+            is ByteArray -> LuaValue.valueOf(o)
+            is Char -> LuaValue.valueOf(o.toString())
+            is Collection<*> -> parseAsTable(o)
+            is Array<*> -> parseAsTable(o.toList())
+            is IntArray -> parseAsTable(o.toList())
+            is DoubleArray -> parseAsTable(o.toList())
+            is FloatArray -> parseAsTable(o.toList())
+            is BooleanArray -> parseAsTable(o.toList())
+            is CharArray -> parseAsTable(o.toList())
+            is Map<*, *> -> parseAsTable(o)
+            else -> ScriptablesAPI.convertToAPI(o)
+        }
     }
 
     fun parseAsTable(collection: Collection<*>): LuaTable {

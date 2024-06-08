@@ -1,5 +1,6 @@
 package io.github.techtastic.scriptables.api.lua
 
+import io.github.techtastic.scriptables.Scriptables.LOGGER
 import io.github.techtastic.scriptables.api.LuaValueUtils
 import io.github.techtastic.scriptables.api.ScriptablesAPI
 import org.luaj.vm2.LuaTable
@@ -16,11 +17,13 @@ import java.lang.invoke.MethodType
 interface ILuaAPI {
     fun getName(): String
     fun toLibrary(): TwoArgFunction {
+        LOGGER.info("Parsing ${this.getName()} API...")
         // The table that will contain the library methods
         val lib = LuaTable()
 
         // Get all methods in the class
         val methods = this::class.java.methods.clone().toMutableList()
+        LOGGER.info("Total Method Count: ${methods.size}")
 
         // Remove all non-Annotated methods and methods with parameters and returns which cannot be parsed as LuaValue
         methods.removeIf { method ->
@@ -37,8 +40,11 @@ interface ILuaAPI {
                     }
         }
 
+        LOGGER.info("Total Annotated Methods: ${methods.size}")
+
         // Add method call to library table using method's name
         methods.forEach { method ->
+            LOGGER.info("Parsing Method ${method.name} with ${method.parameterCount} parameters...")
             lib.set(method.name,
                 when (method.parameterCount) {
                     0 -> object: ZeroArgFunction() {
@@ -70,6 +76,7 @@ interface ILuaAPI {
             override fun call(modname: LuaValue, env: LuaValue): LuaValue {
                 if (!env["package"].isnil())
                     env["package"]["loaded"].set(this@ILuaAPI.getName(), lib)
+                LOGGER.info("Returning Library:\n$lib")
                 return lib
             }
         }

@@ -78,7 +78,7 @@ class LuaSandbox {
         userGlobals.load(JseStringLib())
         userGlobals.load(JseMathLib())
 
-        userGlobals.load(TestLib())
+        userGlobals.load(TestLib().toLibrary())
 
         // This library is dangerous as it gives unfettered access to the
         // entire Java VM, so it's not suitable within this lightweight sandbox.

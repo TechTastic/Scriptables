@@ -1,7 +1,7 @@
 package io.github.techtastic.scriptables.block.custom
 
 import io.github.techtastic.scriptables.block.entity.ScriptableBlockEntity
-import io.github.techtastic.scriptables.api.LuaSandbox
+import io.github.techtastic.scriptables.api.lua.LuaSandbox
 import net.minecraft.core.BlockPos
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Player
