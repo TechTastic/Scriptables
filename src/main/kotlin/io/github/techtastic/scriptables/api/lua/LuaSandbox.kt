@@ -1,5 +1,6 @@
 package io.github.techtastic.scriptables.api.lua
 
+import io.github.techtastic.scriptables.api.ScriptablesAPI
 import io.github.techtastic.scriptables.lua.lb.TestLib
 import org.luaj.vm2.*
 import org.luaj.vm2.compiler.LuaC
@@ -78,7 +79,7 @@ class LuaSandbox {
         userGlobals.load(JseStringLib())
         userGlobals.load(JseMathLib())
 
-        userGlobals.load(TestLib().toLibrary())
+        //userGlobals.load(ScriptablesAPI.parseAPI(TestLib()))
 
         // This library is dangerous as it gives unfettered access to the
         // entire Java VM, so it's not suitable within this lightweight sandbox.
