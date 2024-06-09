@@ -9,16 +9,12 @@ import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.network.chat.Component
 
 
-class ScriptEditorScreen(script: Script): Screen(Component.literal("Script Editor")) {
+class ScriptEditorScreen(script: Script): Screen(Component.translatable("gui.scriptables.script_editor")) {
     private val TEXTURE = Scriptables.getWithModId("textures/gui/script_editor.png")
     val imageWidth = 219
     val imageHeight = 222
     val titleLabelX = 8
     val titleLabelY = 6
-
-    init {
-
-    }
 
     override fun render(guiGraphics: GuiGraphics, i: Int, j: Int, f: Float) {
         super.render(guiGraphics, i, j, f)

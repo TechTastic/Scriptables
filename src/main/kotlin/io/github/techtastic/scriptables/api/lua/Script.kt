@@ -1,5 +1,7 @@
 package io.github.techtastic.scriptables.api.lua
 
+import net.minecraft.nbt.CompoundTag
+
 abstract class Script {
     private val lines =
         mutableListOf<String>()
@@ -71,4 +73,11 @@ abstract class Script {
      * Called when a Script is saved
      */
     abstract fun reload()
+
+    fun saveScript(tag: CompoundTag) =
+        tag.putString("scriptables\$script", this.getUploadableScript())
+
+    fun loadScript(tag: CompoundTag) {
+        this.fromFormattedScript(tag.getString("scriptables\$script"))
+    }
 }

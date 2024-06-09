@@ -1,0 +1,11 @@
+I want to add Scripts to Entities, Blocks (BlockEntities), Items, and AABBs
+
+I need to have event handling and custom libraries for standard Mincraft classes to translate into Lua
+
+I want to add the ability to add custom libraries and classes via annotation
+
+I want Scripts to be editable via a GUI
+
+I want each scriptable to have a sandbox to run with
+
+I need a way to check for and access Scriptable instances

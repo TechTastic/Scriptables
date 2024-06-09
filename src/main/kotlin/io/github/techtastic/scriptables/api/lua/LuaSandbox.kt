@@ -1,7 +1,5 @@
 package io.github.techtastic.scriptables.api.lua
 
-import io.github.techtastic.scriptables.api.ScriptablesAPI
-import io.github.techtastic.scriptables.lua.lb.TestLib
 import org.luaj.vm2.*
 import org.luaj.vm2.compiler.LuaC
 import org.luaj.vm2.lib.*
