@@ -1,26 +1,23 @@
 package io.github.techtastic.scriptables.api
 
-import io.github.techtastic.scriptables.Scriptables.LOGGER
-import io.github.techtastic.scriptables.api.lua.ILuaAPI
-import io.github.techtastic.scriptables.api.lua.LuaAccessible
+import io.github.techtastic.scriptables.api.scriptable.IScriptable
 import io.github.techtastic.scriptables.api.scriptable.IScriptableProvider
-import org.luaj.vm2.LuaTable
-import org.luaj.vm2.LuaValue
-import org.luaj.vm2.Varargs
-import org.luaj.vm2.lib.*
-import java.lang.invoke.MethodHandles
-import java.lang.invoke.MethodType
-import java.lang.reflect.Method
-import kotlin.reflect.KCallable
-import kotlin.reflect.KFunction
-import kotlin.reflect.full.findAnnotations
-import kotlin.reflect.jvm.jvmErasure
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.Level
+import kotlin.jvm.optionals.getOrElse
 
 object ScriptablesAPI {
     private val providers = mutableListOf<IScriptableProvider>()
 
     fun registerScriptableProvider(provider: IScriptableProvider) {
         this.providers.add(provider)
+    }
 
+    fun findScriptable(level: Level, player: Player, hand: InteractionHand): IScriptable? {
+        this.providers.forEach { provider ->
+            return provider.getScriptable(level, player, hand).getOrElse { return@forEach }
+        }
+        return null
     }
 }

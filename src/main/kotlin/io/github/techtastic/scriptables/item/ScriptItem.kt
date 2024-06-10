@@ -1,8 +1,10 @@
 package io.github.techtastic.scriptables.item
 
 import io.github.techtastic.scriptables.Scriptables.LOGGER
+import io.github.techtastic.scriptables.api.ScriptablesAPI
 import io.github.techtastic.scriptables.api.lua.Script
 import io.github.techtastic.scriptables.screen.ScriptEditorScreen
+import kotlinx.coroutines.handleCoroutineException
 import net.minecraft.client.Minecraft
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
@@ -31,22 +33,9 @@ class ScriptItem(properties: Properties) : Item(properties) {
         player: Player,
         interactionHand: InteractionHand
     ): InteractionResultHolder<ItemStack> {
-        val hitResult = level.clip(ClipContext(
-            player.eyePosition,
-            player.eyePosition.add(player.lookAngle.multiply(player.blockInteractionRange(), player.blockInteractionRange(), player.blockInteractionRange())),
-            ClipContext.Block.COLLIDER,
-            ClipContext.Fluid.NONE,
-            CollisionContext.empty()
-        ))
-
-        val context = UseOnContext(player, interactionHand, hitResult)
-        LOGGER.info(context.clickedPos.toString())
-        LOGGER.info(context.clickLocation.toString())
-
-        //TODO: Detect my Scriptable stuff
-        //TODO: Else open Script Editor
-
-        Minecraft.getInstance().setScreen(ScriptEditorScreen(this.script))
+        val scriptable = ScriptablesAPI.findScriptable(level, player, interactionHand) ?: return super.use(level, player, interactionHand)
+        // TODO: This should be a S2C packet tbh
+        Minecraft.getInstance().setScreen(ScriptEditorScreen(scriptable.getScript()))
 
         return super.use(level, player, interactionHand)
     }
