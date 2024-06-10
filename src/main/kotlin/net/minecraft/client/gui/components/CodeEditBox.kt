@@ -29,6 +29,7 @@ class CodeEditBox(val font: Font, x: Int, y: Int, width: Int, height: Int, val n
     var focusedTime = Util.getMillis()
 
     init {
+        this.setValue(this.script.getUploadableScript())
         this.textField.setCursorListener(this::scrollToCursor)
     }
 

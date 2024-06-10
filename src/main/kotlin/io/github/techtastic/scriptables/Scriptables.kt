@@ -6,28 +6,21 @@ import io.github.techtastic.scriptables.api.scriptable.IScriptableProvider
 import io.github.techtastic.scriptables.block.ScriptableBlock
 import io.github.techtastic.scriptables.block.ScriptableBlockEntity
 import io.github.techtastic.scriptables.item.ScriptItem
-import io.github.techtastic.scriptables.screen.ScriptEditorMenu
+import io.github.techtastic.scriptables.networking.ScriptablesNetworking
 import io.github.techtastic.scriptables.screen.ScriptEditorScreen
 import io.netty.buffer.ByteBuf
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.minecraft.client.gui.screens.MenuScreens
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.Component
-import net.minecraft.network.codec.StreamCodec
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.flag.FeatureFlagSet
-import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.ItemStack
@@ -58,43 +51,44 @@ object Scriptables : ModInitializer {
 	val SCRIPTABLE_BLOCK_ITEM = Registry.register(BuiltInRegistries.ITEM, getWithModId("scriptable_block"), BlockItem(SCRIPTABLE_BLOCK, Properties().rarity(Rarity.EPIC).fireResistant()))
 	val SCRIPTABLE_BLOCK_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, getWithModId("scriptable_block"), BlockEntityType.Builder.of(::ScriptableBlockEntity, SCRIPTABLE_BLOCK).build())
 
-	val SCRIPT_EDITOR_MENU = Registry.register(BuiltInRegistries.MENU, getWithModId("script_editor"), MenuType(::ScriptEditorMenu, FeatureFlagSet.of()))
+	override fun onInitialize() {
+		ScriptablesAPI.registerScriptableProvider(DefaultScriptableProvider())
 
-	val defaultProvider = object: IScriptableProvider {
+		ScriptablesNetworking.registerGlobalListeners()
+	}
+
+	class Client: ClientModInitializer {
+		override fun onInitializeClient() {
+			BlockRenderLayerMap.INSTANCE.putBlock(SCRIPTABLE_BLOCK, RenderType.translucent())
+		}
+	}
+
+	fun getWithModId(path: String) = ResourceLocation.fromNamespaceAndPath(MOD_ID, path)
+
+	class DefaultScriptableProvider: IScriptableProvider {
 		override fun getScriptable(level: Level, player: Player, hand: InteractionHand): Optional<IScriptable> {
 			if (level !is ServerLevel) return Optional.empty()
 
-			val hitResult = level.clip(ClipContext(
-				player.eyePosition,
-				player.eyePosition.add(player.lookAngle.multiply(player.blockInteractionRange(), player.blockInteractionRange(), player.blockInteractionRange())),
-				ClipContext.Block.COLLIDER,
-				ClipContext.Fluid.NONE,
-				CollisionContext.empty()
-			))
+			val hitResult = level.clip(
+				ClipContext(
+					player.eyePosition,
+					player.eyePosition.add(
+						player.lookAngle.multiply(
+							player.blockInteractionRange(),
+							player.blockInteractionRange(),
+							player.blockInteractionRange()
+						)
+					),
+					ClipContext.Block.COLLIDER,
+					ClipContext.Fluid.NONE,
+					CollisionContext.empty()
+				)
+			)
 			val context = UseOnContext(player, hand, hitResult)
 
 			val be = level.getBlockEntity(context.clickedPos)
 			return if (be is IScriptable) Optional.of(be)
 			else Optional.empty()
 		}
-	}
-
-	override fun onInitialize() {
-		ScriptablesAPI.registerScriptableProvider(this.defaultProvider)
-	}
-
-	class Client: ClientModInitializer {
-		override fun onInitializeClient() {
-			BlockRenderLayerMap.INSTANCE.putBlock(SCRIPTABLE_BLOCK, RenderType.translucent())
-			MenuScreens.register(SCRIPT_EDITOR_MENU, ::ScriptEditorScreen)
-		}
-	}
-
-	fun getWithModId(path: String) = ResourceLocation.fromNamespaceAndPath(MOD_ID, path)
-
-	abstract class SuperCustomPacketPayload: CustomPacketPayload {
-		abstract fun codec(): StreamCodec<ByteBuf, in SuperCustomPacketPayload>
-		abstract fun onClient(): ClientPlayNetworking.PlayPayloadHandler<in SuperCustomPacketPayload>
-		abstract fun onServer(): ServerPlayNetworking.PlayPayloadHandler<in SuperCustomPacketPayload>
 	}
 }
