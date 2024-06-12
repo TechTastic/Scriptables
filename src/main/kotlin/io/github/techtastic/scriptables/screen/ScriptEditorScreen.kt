@@ -30,7 +30,7 @@ class ScriptEditorScreen(val script: Script): Screen(Component.translatable("gui
             x + 7,
             y + 17,
             162,
-            198,
+            8,
             Component.literal("while true do\n    --your code here\nend"),
             Component.literal("Code Editor"),
             this.script
@@ -39,12 +39,12 @@ class ScriptEditorScreen(val script: Script): Screen(Component.translatable("gui
 
         //TODO: Upload Button: 177, 31
         this.addRenderableWidget(
-            ImageButton(x + 177, y + 31, 16, 16, WidgetSprites(getWithModId("buttoms/upload_button"), getWithModId("buttoms/upload_button_hovered"))
+            ImageButton(x + 177, y + 31, 16, 16, WidgetSprites(getWithModId("buttons/upload_button"), getWithModId("buttons/upload_button_hovered"))
             ) { button -> LOGGER.info("File trying ot be uploaded!") }
         )
         //TODO: Save Button: 177, 63
         this.addRenderableWidget(
-            ImageButton(x + 177, y + 63, 16, 16, WidgetSprites(getWithModId("buttoms/save_button"), getWithModId("buttoms/save_button_hovered"))
+            ImageButton(x + 177, y + 63, 16, 16, WidgetSprites(getWithModId("buttons/save_button"), getWithModId("buttons/save_button_hovered"))
             ) { button -> LOGGER.info("File trying ot be uploaded!") }
         )
         //TODO: File Button: 177, 79

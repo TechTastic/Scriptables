@@ -91,7 +91,7 @@ class CodeEditBox(val font: Font, x: Int, y: Int, width: Int, height: Int, val n
     fun renderBaseContent(guiGraphics: GuiGraphics, i: Int, j: Int, f: Float) {
         val string = textField.value()
         if (string.isEmpty() && !this.isFocused) {
-            guiGraphics.drawWordWrap(
+            guiGraphics.drawStringWithBackdrop(
                 this.font,
                 this.placeholder,
                 this.x + this.innerPadding(),
