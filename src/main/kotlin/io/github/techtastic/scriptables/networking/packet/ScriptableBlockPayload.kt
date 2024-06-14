@@ -1,15 +1,10 @@
 package io.github.techtastic.scriptables.networking.packet
 
-import io.github.techtastic.scriptables.api.scriptable.IScriptable
-import io.github.techtastic.scriptables.screen.ScriptEditorScreen
-import io.netty.buffer.ByteBuf
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.minecraft.client.Minecraft
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
-import net.minecraft.network.codec.StreamCodec
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 
 class ScriptableBlockPayload(val pos: BlockPos, scriptTag: CompoundTag): AbstractScriptablePayload(scriptTag) {
@@ -27,18 +22,18 @@ class ScriptableBlockPayload(val pos: BlockPos, scriptTag: CompoundTag): Abstrac
     override fun onClient() =
         ClientPlayNetworking.PlayPayloadHandler<ScriptableBlockPayload> { payload, context ->
             context.client().execute {
-                val script = (context.player().level().getBlockEntity(payload.pos) as IScriptable).getScript()
-                script.loadScript(payload.scriptTag)
-                Minecraft.getInstance().setScreen(ScriptEditorScreen(script))
+                //val script = (context.player().level().getBlockEntity(payload.pos) as IScriptable).getScript()
+                //script.loadScript(payload.scriptTag)
+                //Minecraft.getInstance().setScreen(ScriptEditorScreen(script))
             }
         }
 
     override fun onServer() =
         ServerPlayNetworking.PlayPayloadHandler<ScriptableBlockPayload> { payload, context ->
             context.player().server.execute {
-                val script = (context.player().level().getBlockEntity(payload.pos) as IScriptable).getScript()
-                script.loadScript(payload.scriptTag)
-                script.reload()
+                //val script = (context.player().level().getBlockEntity(payload.pos) as IScriptable).getScript()
+                //script.loadScript(payload.scriptTag)
+                //script.reload()
             }
         }
 

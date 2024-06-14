@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.components
 
-import io.github.techtastic.scriptables.api.lua.Script
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.Util
@@ -18,7 +17,7 @@ import java.util.function.Consumer
 import kotlin.math.max
 
 @Environment(EnvType.CLIENT)
-class CodeEditBox(val font: Font, x: Int, y: Int, width: Int, height: Int, val narration: Component, val placeholder: Component, val script: Script) : AbstractScrollWidget(x, y, width, height, narration) {
+class CodeEditBox(val font: Font, x: Int, y: Int, width: Int, height: Int, val narration: Component, val placeholder: Component) : AbstractScrollWidget(x, y, width, height, narration) {
     val textField = object: MultilineTextField(font, this.width - this.totalInnerPadding()) {
         override fun insertText(string: String) {
             //TODO: Handle Gist, Pastebin, etc
@@ -29,7 +28,6 @@ class CodeEditBox(val font: Font, x: Int, y: Int, width: Int, height: Int, val n
     var focusedTime = Util.getMillis()
 
     init {
-        this.setValue(this.script.getUploadableScript())
         this.textField.setCursorListener(this::scrollToCursor)
     }
 

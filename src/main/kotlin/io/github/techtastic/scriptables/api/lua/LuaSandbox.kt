@@ -61,11 +61,13 @@ class LuaSandbox {
         runScriptInSandbox("return 5 + 6, 5 + true, false + 6")
     }
 
+    fun runScriptInSandbox(script: String) = this.runScriptInSandbox(script, listOf())
+
     // Run a script in a lua thread and limit it to a certain number
     // of instructions by setting a hook function.
     // Give each script its own copy of globals, but leave out libraries
     // that contain functions that can be abused.
-    fun runScriptInSandbox(script: String) {
+    fun runScriptInSandbox(script: String, customLibraries: List<TwoArgFunction>) {
 
         // Each script will have its own set of globals, which should
         // prevent leakage between scripts running on the same server.
@@ -76,6 +78,7 @@ class LuaSandbox {
         userGlobals.load(TableLib())
         userGlobals.load(JseStringLib())
         userGlobals.load(JseMathLib())
+        customLibraries?.forEach(userGlobals::load)
 
         //userGlobals.load(ScriptablesAPI.parseAPI(TestLib()))
 
