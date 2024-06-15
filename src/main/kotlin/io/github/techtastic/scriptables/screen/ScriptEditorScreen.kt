@@ -5,6 +5,8 @@ import com.mojang.blaze3d.systems.RenderSystem
 import io.github.techtastic.scriptables.Scriptables.LOGGER
 import io.github.techtastic.scriptables.Scriptables.getWithModId
 import io.github.techtastic.scriptables.block.ScriptableBlockEntity
+import io.github.techtastic.scriptables.networking.packet.ScriptableBlockRunnablePayload
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.minecraft.ChatFormatting
 import net.minecraft.client.KeyMapping
 import net.minecraft.client.KeyboardHandler
@@ -52,19 +54,19 @@ class ScriptEditorScreen(menu: ScriptEditorMenu, inventory: Inventory, component
             Component.literal("Code Editor"),
             Component.literal("-- code here")
         )
-        this.codeEditor.setValue(ScriptableBlockEntity.getFormattedScript(this.menu.getScript()))
+        this.codeEditor.setValue(ScriptableBlockEntity.getFormattedScript(this.menu.script))
         this.addRenderableWidget(this.codeEditor)
 
         this.uploadButton = this.addRenderableWidget(
-            ScriptEditorButton(x + 176, y + 32, 16, 16, Component.empty(), { button -> LOGGER.info("Upload Attmpted!") }, "upload")
+            ScriptEditorButton(x + 176, y + 32, 16, 16, Component.empty(), { button -> minecraft?.gameMode?.handleInventoryButtonClick(this.menu.syncId, 0) }, "upload")
         )
 
         this.saveButton = this.addRenderableWidget(
-            ScriptEditorButton(x + 176, y + 64, 16, 16, Component.empty(), { button -> LOGGER.info("Save Attmpted!") }, "save")
+            ScriptEditorButton(x + 176, y + 64, 16, 16, Component.empty(), { button -> minecraft?.gameMode?.handleInventoryButtonClick(this.menu.syncId, 1) }, "save")
         )
 
         this.fileButton = this.addRenderableWidget(
-            ScriptEditorButton(x + 176, y + 96, 16, 16, Component.empty(), { button -> LOGGER.info("File Opening Attmpted!") }, "file")
+            ScriptEditorButton(x + 176, y + 96, 16, 16, Component.empty(), { button -> minecraft?.gameMode?.handleInventoryButtonClick(this.menu.syncId, 2) }, "file")
         )
 
         this.logField = MultiLineTextWidget(x + 9, y + 141, Component.literal("Logs"), this.font)
@@ -72,7 +74,11 @@ class ScriptEditorScreen(menu: ScriptEditorMenu, inventory: Inventory, component
         this.logField.setMaxRows(61)
         this.addRenderableWidget(this.logField)
 
-        this.console = EditBox(this.font, x + 7, y + 204, 162, 11, Component.literal("Console"))
+        this.console = object: EditBox(this.font, x + 7, y + 204, 162, 11, Component.literal("Console")) {
+            init {
+                this.setMaxLength(256)
+            }
+        }
         this.addRenderableWidget(this.console)
     }
 
@@ -96,16 +102,20 @@ class ScriptEditorScreen(menu: ScriptEditorMenu, inventory: Inventory, component
 
         val log = Component.empty()
         this.menu.getLog().forEach { field ->
-            log.append(field.second).withStyle(if (field.first) ChatFormatting.WHITE else ChatFormatting.RED)
+            if (field.second.isEmpty()) return@forEach
+            log.append(Component.literal(field.second + "\n").withStyle(if (field.first) ChatFormatting.WHITE else ChatFormatting.RED))
         }
         this.logField.message = log
     }
 
     override fun keyPressed(i: Int, j: Int, k: Int): Boolean {
-        when (k) {
+        when (i) {
             InputConstants.KEY_RETURN -> {
-                if (this.console.isFocused)
-                    this.menu.runOnSandbox(this.console.value)
+                if (this.console.isFocused) {
+                    minecraft?.gameMode?.handleInventoryButtonClick(menu.syncId, 3)
+                    ClientPlayNetworking.send(ScriptableBlockRunnablePayload(this.menu.data.pos, this.console.value))
+                    this.console.value = ""
+                }
             }
         }
         return super.keyPressed(i, j, k)

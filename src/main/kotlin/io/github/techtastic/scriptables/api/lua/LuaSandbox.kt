@@ -80,7 +80,30 @@ class LuaSandbox {
         userGlobals.load(TableLib())
         userGlobals.load(JseStringLib())
         userGlobals.load(JseMathLib())
-        customLibraries?.forEach(userGlobals::load)
+
+        // Replacing `print()` so it uses the custom logger
+        userGlobals.load(object: TwoArgFunction() {
+            override fun call(modname: LuaValue, env: LuaValue): LuaValue {
+                env.set("print", object: VarArgFunction() {
+                    override fun invoke(args: Varargs): Varargs {
+                        val tostring: LuaValue = serverGlobals.get("tostring")
+                        var i = 1
+                        val n = args.narg()
+                        while (i <= n) {
+                            val s = tostring.call(args.arg(i)).strvalue()
+                            logger.add(Pair(true, s.tojstring()))
+                            i++
+                        }
+                        return NONE
+                    }
+                })
+                return env
+            }
+
+        })
+
+
+        customLibraries.forEach(userGlobals::load)
 
         //userGlobals.load(ScriptablesAPI.parseAPI(TestLib()))
 

@@ -1,9 +1,13 @@
 package io.github.techtastic.scriptables.block
 
 import com.mojang.serialization.Codec
+import io.github.techtastic.scriptables.Scriptables.LOGGER
 import io.github.techtastic.scriptables.Scriptables.SCRIPTABLE_BLOCK_ENTITY
+import io.github.techtastic.scriptables.Scriptables.SCRIPTABLE_BLOCK_MENU_TYPE
 import io.github.techtastic.scriptables.api.lua.LuaSandbox
+import io.github.techtastic.scriptables.networking.packet.ScriptableBlockLogsPayload
 import io.github.techtastic.scriptables.screen.ScriptEditorMenu
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory
 import net.minecraft.core.BlockPos
 import net.minecraft.core.HolderLookup
@@ -14,6 +18,7 @@ import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
 import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.network.codec.StreamCodec
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
@@ -43,8 +48,10 @@ class ScriptableBlockEntity(
     override fun getDisplayName() =
         Component.translatable("gui.scriptables.script_editor")
 
-    override fun getScreenOpeningData(player: ServerPlayer?) =
-        ScriptableBlockData(this.blockPos, this.script)
+    override fun getScreenOpeningData(player: ServerPlayer?): ScriptableBlockData {
+        this.sendLogsToClient()
+        return ScriptableBlockData(this.blockPos, this.script)
+    }
 
     override fun saveAdditional(compoundTag: CompoundTag, provider: HolderLookup.Provider) {
         val list = ListTag()
@@ -77,25 +84,18 @@ class ScriptableBlockEntity(
         this.runOnSandbox(getFormattedScript(this.script))
     }
 
-    fun runOnSandbox(snippet: String) =
+    fun runOnSandbox(snippet: String) {
         this.sandbox.runScriptInSandbox(snippet, this.logs)
+        this.sendLogsToClient()
+    }
 
-    data class ScriptableBlockData(val pos: BlockPos, val script: List<String>) {
-        constructor(buf: FriendlyByteBuf): this(buf.readBlockPos(), buf.readList(ByteBufCodecs.STRING_UTF8))
-
-        fun toBytes(buf: FriendlyByteBuf) {
-            buf.writeBlockPos(this.pos)
-            buf.writeCollection(this.script, ByteBufCodecs.STRING_UTF8)
-        }
-
-        companion object {
-            /*val CODEC = RecordCodecBuilder.create { instance ->
-                instance.group(
-                    BlockPos.CODEC.fieldOf("pos").forGetter(ScriptableBlockData::pos),
-                    Codec.STRING.listOf().fieldOf("script").forGetter(ScriptableBlockData::script)
-                ).apply(instance, ::ScriptableBlockData)
-            }*/
-            val STREAM_CODEC = StreamCodec.of({ buf, data -> data.toBytes(buf) }, ScriptableBlockEntity::ScriptableBlockData)
+    fun sendLogsToClient() {
+        val level = this.level
+        if (level !is ServerLevel) return
+        level.getPlayers { player ->
+            player.containerMenu.type == SCRIPTABLE_BLOCK_MENU_TYPE
+        }.forEach { player ->
+            ServerPlayNetworking.send(player, ScriptableBlockLogsPayload(this.blockPos, this.logs))
         }
     }
 
@@ -106,6 +106,19 @@ class ScriptableBlockEntity(
                 code += it + "\n"
             }
             return code
+        }
+    }
+
+    data class ScriptableBlockData(val pos: BlockPos, val script: List<String>) {
+        constructor(buf: FriendlyByteBuf): this(buf.readBlockPos(), buf.readList(ByteBufCodecs.STRING_UTF8))
+
+        fun toBytes(buf: FriendlyByteBuf) {
+            buf.writeBlockPos(this.pos)
+            buf.writeCollection(this.script, ByteBufCodecs.STRING_UTF8)
+        }
+
+        companion object {
+            val STREAM_CODEC = StreamCodec.of({ buf, data -> data.toBytes(buf) }, ScriptableBlockEntity::ScriptableBlockData)
         }
     }
 }
