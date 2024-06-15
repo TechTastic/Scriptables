@@ -61,13 +61,15 @@ class LuaSandbox {
         runScriptInSandbox("return 5 + 6, 5 + true, false + 6")
     }
 
-    fun runScriptInSandbox(script: String) = this.runScriptInSandbox(script, listOf())
+    fun runScriptInSandbox(script: String) = this.runScriptInSandbox(script, mutableListOf())
+
+    fun runScriptInSandbox(script: String, logger: MutableList<Pair<Boolean, String>>) = this.runScriptInSandbox(script, listOf(), logger)
 
     // Run a script in a lua thread and limit it to a certain number
     // of instructions by setting a hook function.
     // Give each script its own copy of globals, but leave out libraries
     // that contain functions that can be abused.
-    fun runScriptInSandbox(script: String, customLibraries: List<TwoArgFunction>) {
+    fun runScriptInSandbox(script: String, customLibraries: List<TwoArgFunction>, logger: MutableList<Pair<Boolean, String>>) {
 
         // Each script will have its own set of globals, which should
         // prevent leakage between scripts running on the same server.
@@ -138,6 +140,7 @@ class LuaSandbox {
         // then call the hook function which will error out and stop the script.
         val result: Varargs = thread.resume(LuaValue.NIL)
         println("[[$script]] -> $result")
+        logger.add(Pair(result.toboolean(1), result.optjstring(2, "")))
     }
 
     // Simple read-only table whose contents are initialized from another table.
