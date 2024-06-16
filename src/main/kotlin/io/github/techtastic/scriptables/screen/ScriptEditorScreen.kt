@@ -6,6 +6,7 @@ import io.github.techtastic.scriptables.Scriptables.LOGGER
 import io.github.techtastic.scriptables.Scriptables.getWithModId
 import io.github.techtastic.scriptables.block.ScriptableBlockEntity
 import io.github.techtastic.scriptables.networking.packet.ScriptableBlockRunnablePayload
+import io.github.techtastic.scriptables.util.NamelessInventory
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.minecraft.ChatFormatting
 import net.minecraft.client.KeyMapping
@@ -26,7 +27,7 @@ import java.util.function.Supplier
 
 
 class ScriptEditorScreen(menu: ScriptEditorMenu, inventory: Inventory, component: Component) :
-    AbstractContainerScreen<ScriptEditorMenu>(menu, inventory, component) {
+    AbstractContainerScreen<ScriptEditorMenu>(menu, NamelessInventory(inventory.player), component) {
     private val TEXTURE = getWithModId("textures/gui/script_editor.png")
     private lateinit var codeEditor: CodeEditBox
     private lateinit var logField: MultiLineTextWidget
@@ -95,17 +96,12 @@ class ScriptEditorScreen(menu: ScriptEditorMenu, inventory: Inventory, component
     override fun containerTick() {
         super.containerTick()
 
-        if (this.menu.getLog().isEmpty()) {
+        val latest = this.menu.getLog().lastOrNull { pair -> pair.second.isNotEmpty() }
+        if (latest == null) {
             this.logField.message = Component.literal("Code not ran yet!").withStyle(ChatFormatting.GOLD)
             return
         }
-
-        val log = Component.empty()
-        this.menu.getLog().forEach { field ->
-            if (field.second.isEmpty()) return@forEach
-            log.append(Component.literal(field.second + "\n").withStyle(if (field.first) ChatFormatting.WHITE else ChatFormatting.RED))
-        }
-        this.logField.message = log
+        this.logField.message = Component.literal(latest.second.replace("\t", "  ") + "\n").withStyle(if (latest.first) ChatFormatting.WHITE else ChatFormatting.RED)
     }
 
     override fun keyPressed(i: Int, j: Int, k: Int): Boolean {
