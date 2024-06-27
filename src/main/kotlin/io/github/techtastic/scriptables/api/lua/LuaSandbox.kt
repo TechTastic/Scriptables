@@ -99,7 +99,6 @@ class LuaSandbox {
                 })
                 return env
             }
-
         })
 
 
