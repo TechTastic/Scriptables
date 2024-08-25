@@ -1,9 +1,0 @@
-{
-  "variants": {
-    "": [
-      {
-        "model": "scriptables:block/scriptable_block"
-      }
-    ]
-  }
-}
